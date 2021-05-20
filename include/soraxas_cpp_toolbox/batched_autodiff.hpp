@@ -4,14 +4,14 @@
 
 namespace sxs {
 
-template <typename Function, typename Args, typename Result, int MatData_B,
-          int MatData_N, int MatData_order>
+template <typename Function, typename Args, typename Result, typename dtype,
+          int MatData_B, int MatData_N, int MatData_order>
 auto batched_gradient_single_var(
     const Function &f,
-    Eigen::Matrix<autodiff::dual, MatData_B, MatData_N, MatData_order>
-        &batched_var,
+    Eigen::Matrix<autodiff::forward::Dual<dtype, dtype>, MatData_B, MatData_N,
+                  MatData_order> &batched_var,
     Args &&args, Result &result)
-    -> Eigen::Matrix<double, MatData_B, MatData_N, MatData_order> {
+    -> Eigen::Matrix<dtype, MatData_B, MatData_N, MatData_order> {
 
   // Unlike the vendor function, this only works for one variable
   // This assumes eigen shape [B,N] where B is the number of batch,
@@ -24,7 +24,7 @@ auto batched_gradient_single_var(
   // Return: `g` which is the gradient with shape [B,N]
 
   // setup holder for gradient
-  Eigen::Matrix<double, MatData_B, MatData_N, MatData_order> g(
+  Eigen::Matrix<dtype, MatData_B, MatData_N, MatData_order> g(
       batched_var.rows(), batched_var.cols());
 
   for (auto j = 0; j < batched_var.cols(); ++j) { // for each variable
